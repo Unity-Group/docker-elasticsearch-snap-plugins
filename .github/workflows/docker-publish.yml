@@ -6,10 +6,9 @@ name: Docker
 # documentation.
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
-    # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
@@ -25,6 +24,9 @@ jobs:
       contents: read
       packages: write
       id-token: write
+    strategy:
+      matrix:
+        ES_VERSION: ["7.16.3", "6.8.22"]
 
     steps:
       - name: Checkout repository
@@ -56,5 +58,5 @@ jobs:
           context: .
           push: true
           build-args: |
-            ES_VERSION=7.16.3
-          tags: "${{ env.REGISTRY }}/${{ env.IMAGE_REPOSITORY }}:7.16.3"
+            ES_VERSION=${{ matrix.ES_VERSION }}
+          tags: "${{ env.REGISTRY }}/${{ env.IMAGE_REPOSITORY }}:${{ matrix.ES_VERSION }}"
